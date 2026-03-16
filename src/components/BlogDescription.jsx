@@ -2,6 +2,12 @@ import { useState } from "react";
 import blogService from "../services/blogs";
 
 const BlogDescription = ({ style, blog }) => {
+  const styleUrl = {
+    textOverflow: "ellipsis",
+    overflow: "hidden",
+    whiteSpace: "nowrap",
+  };
+
   const [likes, setLikes] = useState(blog.likes);
 
   const handleLike = async (blog) => {
@@ -20,7 +26,7 @@ const BlogDescription = ({ style, blog }) => {
 
   return (
     <div style={style}>
-      <div>Url: {blog.url}</div>
+      <div style={styleUrl}>Url: {blog.url}</div>
       <div>
         Likes: {likes}
         <button
