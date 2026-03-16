@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import Blog from "./components/Blog";
+import BlogDescription from "./components/BlogDescription";
 import BlogForm from "./components/BlogForm";
 import Togglable from "./components/Togglable";
 import blogService from "./services/blogs";
@@ -89,10 +90,14 @@ const App = () => {
           `Added new blog: ${blogCreated.title} by ${blogCreated.author}`,
         );
         setBlogs(blogs.concat(blogCreated));
-        blogFormRef.current.toggleVisibility()
+        blogFormRef.current.toggleVisibility();
       }
     } catch (err) {
       setErrorNotification(err.response.data.error);
+      if (err.response.status === 401) {
+        window.localStorage.removeItem("loggedBlogAppUser");
+        setUser(null);
+      }
     }
   };
 
@@ -157,7 +162,11 @@ const App = () => {
       <div>
         <h2>Blog list</h2>
         {blogs.map((blog) => (
-          <Blog key={blog.id} blog={blog} />
+          <Blog key={blog.id} blog={blog}>
+            {/* <Togglable buttonLable={"View"}>
+              <BlogDescription blog={blog} />
+            </Togglable> */}
+          </Blog>
         ))}
       </div>
     </div>
