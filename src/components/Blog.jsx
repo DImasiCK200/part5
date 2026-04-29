@@ -1,7 +1,7 @@
 import { useState } from "react";
 import BlogDescription from "./BlogDescription";
 
-const Blog = ({ blog }) => {
+const Blog = ({ blog, user, handleDelete }) => {
   const style = {
     border: "solid",
     borderWidth: 1,
@@ -14,11 +14,19 @@ const Blog = ({ blog }) => {
 
   const [visible, setVisible] = useState(false);
 
-  const showWhenVisible = { display: visible ? "" : "none" };
+  const showWhenVisible = {
+    display: visible ? "" : "none",
+  };
 
   const toggleVisibility = () => {
     setVisible(!visible);
   };
+
+  const deleteButton = () => (
+    <div>
+      <button onClick={() => handleDelete(blog)}>Delete</button>
+    </div>
+  );
 
   return (
     <div style={style}>
@@ -28,6 +36,7 @@ const Blog = ({ blog }) => {
         <button onClick={toggleVisibility}>{visible ? "Hide" : "View"}</button>
       </div>
       <BlogDescription style={showWhenVisible} blog={blog} />
+      {user && user.username === blog.user.username && deleteButton()}
     </div>
   );
 };

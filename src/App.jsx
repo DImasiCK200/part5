@@ -101,6 +101,25 @@ const App = () => {
     }
   };
 
+  const deleteBlog = async (blogToDelete) => {
+    if (
+      window.confirm(
+        `Do you want to delete ${blogToDelete.title} by ${blogToDelete.author} blog?`,
+      )
+    ) {
+      try {
+        await blogService.remove(blogToDelete.id);
+
+        setSuccessNotification(
+          `Successful delete blog: ${blogToDelete.title} `,
+        );
+        setBlogs(blogs.filter((blog) => blog.id !== blogToDelete.id));
+      } catch (err) {
+        setErrorNotification(err.response.data.error);
+      }
+    }
+  };
+
   const blogForm = () => (
     <div>
       <div>
@@ -150,8 +169,10 @@ const App = () => {
     </div>
   );
 
+  blogs.sort((a, b) => b.likes - a.likes);
+
   return (
-    <div>
+    <div style={style}>
       <h1>Blogs</h1>
       <ErrorNotification message={errorMessage} />
       <SuccessNotification message={successMessage} />
@@ -162,11 +183,12 @@ const App = () => {
       <div>
         <h2>Blog list</h2>
         {blogs.map((blog) => (
-          <Blog key={blog.id} blog={blog}>
-            {/* <Togglable buttonLable={"View"}>
-              <BlogDescription blog={blog} />
-            </Togglable> */}
-          </Blog>
+          <Blog
+            key={blog.id}
+            blog={blog}
+            user={user}
+            handleDelete={deleteBlog}
+          ></Blog>
         ))}
       </div>
     </div>
