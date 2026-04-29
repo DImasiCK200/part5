@@ -7,6 +7,9 @@ const Blog = ({ blog }) => {
     borderWidth: 1,
     margin: "5px",
     padding: "10px",
+    backgroundColor: "#4deaff",
+    width: "50%",
+    borderRadius: "20px"
   };
 
   const [visible, setVisible] = useState(false);
