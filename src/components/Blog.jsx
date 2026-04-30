@@ -1,7 +1,6 @@
 import { useState } from "react";
-import BlogDescription from "./BlogDescription";
 
-const Blog = ({ blog, user, handleDelete }) => {
+const Blog = ({ blog, user, handleLike, handleDelete }) => {
   const style = {
     border: "solid",
     borderWidth: 1,
@@ -9,7 +8,13 @@ const Blog = ({ blog, user, handleDelete }) => {
     padding: "10px",
     backgroundColor: "#4deaff",
     width: "50%",
-    borderRadius: "20px"
+    borderRadius: "20px",
+  };
+
+  const styleUrl = {
+    textOverflow: "ellipsis",
+    overflow: "hidden",
+    whiteSpace: "nowrap",
   };
 
   const [visible, setVisible] = useState(false);
@@ -35,7 +40,20 @@ const Blog = ({ blog, user, handleDelete }) => {
         Author: {blog.author}{" "}
         <button onClick={toggleVisibility}>{visible ? "Hide" : "View"}</button>
       </div>
-      <BlogDescription style={showWhenVisible} blog={blog} />
+      <div style={showWhenVisible} blog={blog}>
+        <div style={styleUrl}>Url: {blog.url}</div>
+        <div>
+          Likes: {blog.likes}
+          <button
+            onClick={async () => {
+              await handleLike(blog);
+            }}
+          >
+            Like
+          </button>
+        </div>
+        <div>Created by: {blog.user.name}</div>
+      </div>
       {user && user.username === blog.user.username && deleteButton()}
     </div>
   );

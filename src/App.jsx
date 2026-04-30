@@ -101,6 +101,30 @@ const App = () => {
     }
   };
 
+  const likeBlog = async (blogToLike) => {
+    try {
+      const editBlog = {
+        ...blogToLike,
+        user: blogToLike.user.id,
+        likes: blogToLike.likes + 1,
+      };
+
+      const updatedBlog = await blogService.update(editBlog);
+
+      if (updatedBlog) {
+        setBlogs(
+          blogs.map((blog) =>
+            blog.id === updatedBlog.id
+              ? { ...blog, likes: updatedBlog.likes }
+              : blog,
+          ),
+        );
+      }
+    } catch (err) {
+      console.log(err.response.data.error);
+    }
+  };
+
   const deleteBlog = async (blogToDelete) => {
     if (
       window.confirm(
@@ -172,7 +196,7 @@ const App = () => {
   blogs.sort((a, b) => b.likes - a.likes);
 
   return (
-    <div style={style}>
+    <div>
       <h1>Blogs</h1>
       <ErrorNotification message={errorMessage} />
       <SuccessNotification message={successMessage} />
@@ -187,6 +211,7 @@ const App = () => {
             key={blog.id}
             blog={blog}
             user={user}
+            handleLike={likeBlog}
             handleDelete={deleteBlog}
           ></Blog>
         ))}
