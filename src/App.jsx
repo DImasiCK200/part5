@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -14,6 +14,7 @@ import Togglable from "./components/Togglable";
 import BlogList from "./components/BlogList";
 import Login from "./components/Login";
 import blogService from "./services/blogs";
+import loginService from "./services/login";
 import ErrorNotification from "./components/ErrorNotification";
 import SuccessNotification from "./components/SuccessNotification";
 
@@ -65,6 +66,21 @@ const App = () => {
     timeout = setTimeout(() => {
       setSuccessMessage(null);
     }, 3000);
+  };
+
+  const handleLogin = async (username, password) => {
+    try {
+      const userDb = await loginService.login({ username, password });
+
+      setSuccessNotification("Successful login!");
+
+      window.localStorage.setItem("loggedBlogAppUser", JSON.stringify(userDb));
+      blogService.setToken(userDb.token);
+
+      setUser(userDb);
+    } catch (err) {
+      setErrorNotification(err.response.data.error);
+    }
   };
 
   const handleLogout = () => {
@@ -181,16 +197,7 @@ const App = () => {
           path="/createBlog"
           element={<BlogForm createBlog={addBlog} user={user} />}
         />
-        <Route
-          path="/login"
-          element={
-            <Login
-              setUser={setUser}
-              setErrorNotification={setErrorNotification}
-              setSuccessNotification={setSuccessNotification}
-            />
-          }
-        />
+        <Route path="/login" element={<Login loginUser={handleLogin} />} />
         <Route
           path="/"
           element={

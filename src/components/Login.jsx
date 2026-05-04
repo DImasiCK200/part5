@@ -1,9 +1,7 @@
 import { useState } from "react";
-import blogService from "../services/blogs";
-import loginService from "../services/login";
 import { useNavigate } from "react-router-dom";
 
-const Login = ({ setUser, setSuccessNotification, setErrorNotification }) => {
+const Login = ({ loginUser }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -12,22 +10,11 @@ const Login = ({ setUser, setSuccessNotification, setErrorNotification }) => {
   const handleLogin = async (event) => {
     event.preventDefault();
 
-    try {
-      const userDb = await loginService.login({ username, password });
+    await loginUser(username, password);
 
-      setSuccessNotification("Successful login!");
-
-      window.localStorage.setItem("loggedBlogAppUser", JSON.stringify(userDb));
-      blogService.setToken(userDb.token);
-
-      setUser(userDb);
-      setUsername("");
-      setPassword("");
-      navigate("/");
-    } catch (err) {
-      setErrorNotification(err.response.data.error);
-      console.log(err.response.data.error);
-    }
+    setUsername("");
+    setPassword("");
+    navigate("/");
   };
 
   const loginForm = () => (
