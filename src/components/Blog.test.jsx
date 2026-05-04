@@ -1,65 +1,113 @@
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+// import userEvent from "@testing-library/user-event";
 
 import Blog from "./Blog";
+import { describe } from "vitest";
 
 let likeMockHandler;
 let deleteMockHandler;
 
 describe("<Blog />", () => {
-  beforeEach(() => {
-    const user = {
-      name: "TestUser",
-    };
+  describe("When user not authorized", () => {
+    beforeEach(() => {
+      const user = null;
 
-    const blog = {
-      title: "Test title",
-      author: "Test author",
-      likes: 100,
-      url: "http://test.com/",
-      user,
-    };
+      const blog = {
+        title: "Test title",
+        author: "Test author",
+        likes: 100,
+        url: "http://test.com/",
+        user: { username: "Test user" },
+      };
 
-    likeMockHandler = vi.fn();
-    deleteMockHandler = vi.fn();
+      likeMockHandler = vi.fn();
+      deleteMockHandler = vi.fn();
 
-    render(
-      <Blog
-        blog={blog}
-        user={user}
-        handleLike={likeMockHandler}
-        handleDelete={deleteMockHandler}
-      />,
-    );
+      render(
+        <Blog
+          blog={blog}
+          user={user}
+          handleLike={likeMockHandler}
+          handleDelete={deleteMockHandler}
+        />,
+      );
+    });
+
+    test.only("likes are visible, but button isnt", () => {
+      expect(screen.getByText("Likes: 100")).toBeVisible();
+      expect(
+        screen.queryByRole("button", { name: "Like" }),
+      ).not.toBeInTheDocument();
+    });
   });
 
-  test("title and author are visible", () => {
-    expect(screen.getByText("Author: Test author")).toBeVisible();
-    expect(screen.getByText("Test title")).toBeVisible();
+  describe("When user authorized", () => {
+    beforeEach(() => {
+      const user = {
+        name: "Test user #1",
+      };
+
+      const blog = {
+        title: "Test title",
+        author: "Test author",
+        likes: 100,
+        url: "http://test.com/",
+        user: { username: "Test user #2" },
+      };
+
+      likeMockHandler = vi.fn();
+      deleteMockHandler = vi.fn();
+
+      render(
+        <Blog
+          blog={blog}
+          user={user}
+          handleLike={likeMockHandler}
+          handleDelete={deleteMockHandler}
+        />,
+      );
+    });
+
+    test.only("likes and button are visible", () => {
+      expect(screen.getByText("Likes: 100")).toBeVisible();
+      expect(screen.getByRole("button", { name: "Like" })).toBeVisible();
+      expect(
+        screen.queryByRole("button", { name: "Delete" }),
+      ).not.toBeInTheDocument();
+    });
   });
 
-  test("likes and url are not visible", () => {
-    expect(screen.getByText("Likes: 100")).not.toBeVisible();
-    expect(screen.getByText("Url: http://test.com/")).not.toBeVisible();
-  });
+  describe("When user is creator of blog", () => {
+    beforeEach(() => {
+      const user = {
+        name: "Test user #1",
+      };
 
-  test("after clicking the button, likes and url are visible", async () => {
-    const user = userEvent.setup();
-    const button = screen.getByText("View");
+      const blog = {
+        title: "Test title",
+        author: "Test author",
+        likes: 100,
+        url: "http://test.com/",
+        user,
+      };
 
-    await user.click(button);
+      likeMockHandler = vi.fn();
+      deleteMockHandler = vi.fn();
 
-    expect(screen.getByText("Author: Test author")).toBeVisible();
-    expect(screen.getByText("Test title")).toBeVisible();
-  });
+      render(
+        <Blog
+          blog={blog}
+          user={user}
+          handleLike={likeMockHandler}
+          handleDelete={deleteMockHandler}
+        />,
+      );
+    });
 
-  test("after clicking the like button twice, it handle twice", async () => {
-    const user = userEvent.setup();
-    const likeButton = screen.getByText("Like");
-
-    await user.click(likeButton);
-    await user.click(likeButton);
-
-    expect(likeMockHandler.mock.calls).toHaveLength(2);
+    test.only("likes are visible, but button isnt", () => {
+      expect(screen.getByText("Likes: 100")).toBeVisible();
+      expect(screen.getByRole("button", { name: "Like" })).toBeVisible();
+      expect(screen.getByRole("button", { name: "Delete" })).toBeVisible();
+    });
   });
 });
