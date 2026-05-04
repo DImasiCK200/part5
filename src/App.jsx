@@ -1,10 +1,19 @@
 import { useState, useEffect, useRef } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  useNavigate,
+  useMatch,
+} from "react-router-dom";
+
 import Blog from "./components/Blog";
-import BlogDescription from "./components/BlogDescription";
 import BlogForm from "./components/BlogForm";
 import Togglable from "./components/Togglable";
+import BlogList from "./components/BlogList";
+import Login from "./components/Login";
 import blogService from "./services/blogs";
-import loginService from "./services/login";
 import ErrorNotification from "./components/ErrorNotification";
 import SuccessNotification from "./components/SuccessNotification";
 
@@ -12,13 +21,11 @@ let timeout = null;
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
   const [user, setUser] = useState(null);
 
-  const blogFormRef = useRef();
+  const navigate = useNavigate();
 
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs));
@@ -32,6 +39,9 @@ const App = () => {
       blogService.setToken(userLs.token);
     }
   }, []);
+
+  const match = useMatch("/blogs/:id");
+  const blog = match ? blogs.find((blog) => blog.id === match.params.id) : null;
 
   const setErrorNotification = (message) => {
     setErrorMessage(message);
@@ -57,27 +67,9 @@ const App = () => {
     }, 3000);
   };
 
-  const handleLogin = async (event) => {
-    event.preventDefault();
-
-    try {
-      const userDb = await loginService.login({ username, password });
-
-      setSuccessNotification("Successful login!");
-
-      window.localStorage.setItem("loggedBlogAppUser", JSON.stringify(userDb));
-      blogService.setToken(userDb.token);
-
-      setUser(userDb);
-      setUsername("");
-      setPassword("");
-    } catch (err) {
-      setErrorNotification(err.response.data.error);
-    }
-  };
-
   const handleLogout = () => {
     setUser(null);
+    navigate("/");
     window.localStorage.removeItem("loggedBlogAppUser");
   };
 
@@ -90,7 +82,7 @@ const App = () => {
           `Added new blog: ${blogCreated.title} by ${blogCreated.author}`,
         );
         setBlogs(blogs.concat(blogCreated));
-        blogFormRef.current.toggleVisibility();
+        navigate("/");
       }
     } catch (err) {
       setErrorNotification(err.response.data.error);
@@ -134,6 +126,8 @@ const App = () => {
       try {
         await blogService.remove(blogToDelete.id);
 
+        navigate("/");
+
         setSuccessNotification(
           `Successful delete blog: ${blogToDelete.title} `,
         );
@@ -144,79 +138,72 @@ const App = () => {
     }
   };
 
-  const blogForm = () => (
-    <div>
-      <div>
-        <h2>Logged in</h2>
-        <div>
-          {user.name}
-          <button onClick={handleLogout}>Log out</button>
-        </div>
-      </div>
-      <h2>New blog</h2>
-      <Togglable buttonLable={"New blog"} ref={blogFormRef}>
-        <BlogForm
-          createBlog={addBlog}
-          handleLogout={handleLogout}
-          user={user}
-        />
-      </Togglable>
-    </div>
-  );
-
-  const loginForm = () => (
-    <div>
-      <h2>Log in to application</h2>
-      <form onSubmit={handleLogin}>
-        <div>
-          <label>
-            username
-            <input
-              type="text"
-              value={username}
-              onChange={({ target }) => setUsername(target.value)}
-            />
-          </label>
-        </div>
-        <div>
-          <label>
-            password
-            <input
-              type="password"
-              value={password}
-              onChange={({ target }) => setPassword(target.value)}
-            />
-          </label>
-        </div>
-        <button type="submit">login</button>
-      </form>
-    </div>
-  );
-
-  blogs.sort((a, b) => b.likes - a.likes);
+  const padding = {
+    padding: 5,
+  };
 
   return (
-    <div>
-      <h1>Blogs</h1>
+    <>
+      <div>
+        <Link style={padding} to="/">
+          Blogs
+        </Link>
+        {user && (
+          <Link style={padding} to="/createBlog">
+            New blog
+          </Link>
+        )}
+        {user ? (
+          <button onClick={handleLogout}>Logout</button>
+        ) : (
+          <Link style={padding} to="/login">
+            Login
+          </Link>
+        )}
+      </div>
+
       <ErrorNotification message={errorMessage} />
       <SuccessNotification message={successMessage} />
 
-      {!user && loginForm()}
-      {user && blogForm()}
-
-      <div>
-        <h2>Blog list</h2>
-        {blogs.map((blog) => (
-          <Blog
-            key={blog.id}
-            blog={blog}
-            user={user}
-            handleLike={likeBlog}
-            handleDelete={deleteBlog}
-          ></Blog>
-        ))}
-      </div>
-    </div>
+      <Routes>
+        <Route
+          path="/blogs/:id"
+          element={
+            <Blog
+              blog={blog}
+              user={user}
+              handleLike={likeBlog}
+              handleDelete={deleteBlog}
+            />
+          }
+        />
+        <Route
+          path="/createBlog"
+          element={<BlogForm createBlog={addBlog} user={user} />}
+        />
+        <Route
+          path="/login"
+          element={
+            <Login
+              setUser={setUser}
+              setErrorNotification={setErrorNotification}
+              setSuccessNotification={setSuccessNotification}
+            />
+          }
+        />
+        <Route
+          path="/"
+          element={
+            <BlogList
+              blogs={blogs}
+              user={user}
+              handleLike={likeBlog}
+              handleDelete={deleteBlog}
+            />
+          }
+        />
+      </Routes>
+    </>
   );
 };
 

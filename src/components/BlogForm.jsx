@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const BlogForm = ({ createBlog }) => {
+const BlogForm = ({ user, createBlog }) => {
   const [blogTitle, setBlogTitle] = useState("");
   const [blogUrl, setBlogUrl] = useState("");
   const [blogAuthor, setBlogAuthor] = useState("");
@@ -23,7 +23,7 @@ const BlogForm = ({ createBlog }) => {
     }
   };
 
-  return (
+  const blogForm = () => (
     <div>
       <div>
         <form onSubmit={handleBlog}>
@@ -62,6 +62,8 @@ const BlogForm = ({ createBlog }) => {
       </div>
     </div>
   );
+
+  return <>{user ? blogForm() : "You must be authorize"}</>;
 };
 
 export default BlogForm;
