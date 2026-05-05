@@ -3,7 +3,7 @@ import App from "./App";
 import { BrowserRouter as Router } from "react-router-dom";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <Router>
+  <Router style={{ backgroundColor: "#000000" }}>
     <App />
   </Router>,
 );

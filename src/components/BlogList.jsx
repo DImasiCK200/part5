@@ -1,5 +1,4 @@
-import Blog from "./Blog";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const BlogList = ({ blogs }) => {
   blogs.sort((a, b) => b.likes - a.likes);

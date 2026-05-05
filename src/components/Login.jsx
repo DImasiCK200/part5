@@ -11,11 +11,12 @@ const Login = ({ loginUser }) => {
   const handleLogin = async (event) => {
     event.preventDefault();
 
-    await loginUser(username, password);
+    const response = await loginUser(username, password);
 
     setUsername("");
     setPassword("");
-    navigate("/");
+
+    if (response) navigate("/");
   };
 
   const style = { paddingTop: 10 };

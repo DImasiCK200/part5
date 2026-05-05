@@ -65,8 +65,9 @@ const App = () => {
       blogService.setToken(userDb.token);
 
       setUser(userDb);
+      return "success";
     } catch (err) {
-      showNotification(err.response.data.error, "fail");
+      showNotification(err.response.data.error, "error");
     }
   };
 
@@ -89,7 +90,7 @@ const App = () => {
         navigate("/");
       }
     } catch (err) {
-      showNotification(err.response.data.error, "fail");
+      showNotification(err.response.data.error, "error");
       if (err.response.status === 401) {
         window.localStorage.removeItem("loggedBlogAppUser");
         setUser(null);
@@ -138,7 +139,7 @@ const App = () => {
         );
         setBlogs(blogs.filter((blog) => blog.id !== blogToDelete.id));
       } catch (err) {
-        showNotification(err.response.data.error, "fail");
+        showNotification(err.response.data.error, "error");
       }
     }
   };

@@ -1,46 +1,56 @@
+import {
+  Card,
+  CardContent,
+  CardActions,
+  Typography,
+  Button,
+  Link,
+} from "@mui/material";
+
 const Blog = ({ blog, user, handleLike, handleDelete }) => {
-  const style = {
-    border: "solid",
-    borderWidth: 1,
-    margin: "5px",
-    padding: "10px",
-    width: "50%",
-    borderRadius: "20px",
-  };
-
-  const styleUrl = {
-    textOverflow: "ellipsis",
-    overflow: "hidden",
-    whiteSpace: "nowrap",
-  };
-
-  const deleteButton = () => (
-    <div>
-      <button onClick={() => handleDelete(blog)}>Delete</button>
-    </div>
-  );
-
   return (
-    <div style={style}>
-      <h3>{blog.title}</h3>
-      <div>Author: {blog.author}</div>
-      <div>
-        <div style={styleUrl}>Url: {blog.url}</div>
-        <div>
-          Likes: {blog.likes}
+    <div style={{ paddingTop: 10 }}>
+      <Card style={{ backgroundColor: "#e8e9e8ff" }}>
+        <CardContent>
+          <Typography variant="h5">{blog.title}</Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+            by {blog.author}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            <Link href={blog.url} target="_blank" rel="noopener">
+              {blog.url}
+            </Link>
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            Added by {blog.user.name}
+          </Typography>
+          <Typography sx={{ mt: 1 }}>{blog.likes} likes</Typography>
+        </CardContent>
+        <CardActions>
           {user && (
-            <button
+            <Button
+              size="small"
+              variant="outlined"
               onClick={async () => {
                 await handleLike(blog);
               }}
             >
               Like
-            </button>
+            </Button>
           )}
-        </div>
-        <div>Created by: {blog.user.name}</div>
-      </div>
-      {user && user.username === blog.user.username && deleteButton()}
+
+          {user && user.username === blog.user.username && (
+            <Button
+              size="small"
+              variant="outlined"
+              color="error"
+              onClick={() => handleDelete(blog)}
+            >
+              Remove
+            </Button>
+          )}
+        </CardActions>
+      </Card>
     </div>
   );
 };
