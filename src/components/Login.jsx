@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { TextField, Button } from "@mui/material";
 
 const Login = ({ loginUser }) => {
   const [username, setUsername] = useState("");
@@ -17,31 +18,33 @@ const Login = ({ loginUser }) => {
     navigate("/");
   };
 
+  const style = { paddingTop: 10 };
+
   const loginForm = () => (
     <div>
       <h2>Log in to application</h2>
       <form onSubmit={handleLogin}>
-        <div>
-          <label>
-            username
-            <input
-              type="text"
-              value={username}
-              onChange={({ target }) => setUsername(target.value)}
-            />
-          </label>
+        <div style={style}>
+          <TextField
+            label="username"
+            value={username}
+            onChange={({ target }) => setUsername(target.value)}
+          />
         </div>
-        <div>
-          <label>
-            password
-            <input
-              type="password"
-              value={password}
-              onChange={({ target }) => setPassword(target.value)}
-            />
-          </label>
+        <div style={style}>
+          <TextField
+            type="password"
+            label="password"
+            value={password}
+            onChange={({ target }) => setPassword(target.value)}
+          />
         </div>
-        <button type="submit">login</button>
+
+        <div>
+          <Button type="submit" variant="contained" style={{ marginTop: 10 }}>
+            login
+          </Button>
+        </div>
       </form>
     </div>
   );

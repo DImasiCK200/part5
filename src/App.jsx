@@ -7,6 +7,7 @@ import {
   useNavigate,
   useMatch,
 } from "react-router-dom";
+import { Container, AppBar, Toolbar, Button } from "@mui/material";
 
 import Blog from "./components/Blog";
 import BlogForm from "./components/BlogForm";
@@ -15,15 +16,13 @@ import BlogList from "./components/BlogList";
 import Login from "./components/Login";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
-import ErrorNotification from "./components/ErrorNotification";
-import SuccessNotification from "./components/SuccessNotification";
+import Notification from "./components/Notification";
 
 let timeout = null;
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null);
+  const [notification, setNotification] = useState(null);
   const [user, setUser] = useState(null);
 
   const navigate = useNavigate();
@@ -44,27 +43,15 @@ const App = () => {
   const match = useMatch("/blogs/:id");
   const blog = match ? blogs.find((blog) => blog.id === match.params.id) : null;
 
-  const setErrorNotification = (message) => {
-    setErrorMessage(message);
+  const showNotification = (message, status) => {
+    setNotification({ text: message, type: status });
 
     if (timeout) {
       clearTimeout(timeout);
     }
 
     timeout = setTimeout(() => {
-      setErrorMessage(null);
-    }, 3000);
-  };
-
-  const setSuccessNotification = (message) => {
-    setSuccessMessage(message);
-
-    if (timeout) {
-      clearTimeout(timeout);
-    }
-
-    timeout = setTimeout(() => {
-      setSuccessMessage(null);
+      setNotification(null);
     }, 3000);
   };
 
@@ -72,14 +59,14 @@ const App = () => {
     try {
       const userDb = await loginService.login({ username, password });
 
-      setSuccessNotification("Successful login!");
+      showNotification("Successful login!", "success");
 
       window.localStorage.setItem("loggedBlogAppUser", JSON.stringify(userDb));
       blogService.setToken(userDb.token);
 
       setUser(userDb);
     } catch (err) {
-      setErrorNotification(err.response.data.error);
+      showNotification(err.response.data.error, "fail");
     }
   };
 
@@ -94,14 +81,15 @@ const App = () => {
       const blogCreated = await blogService.create(blogObject);
 
       if (blogCreated) {
-        setSuccessNotification(
+        showNotification(
           `Added new blog: ${blogCreated.title} by ${blogCreated.author}`,
+          "success",
         );
         setBlogs(blogs.concat(blogCreated));
         navigate("/");
       }
     } catch (err) {
-      setErrorNotification(err.response.data.error);
+      showNotification(err.response.data.error, "fail");
       if (err.response.status === 401) {
         window.localStorage.removeItem("loggedBlogAppUser");
         setUser(null);
@@ -144,42 +132,42 @@ const App = () => {
 
         navigate("/");
 
-        setSuccessNotification(
+        showNotification(
           `Successful delete blog: ${blogToDelete.title} `,
+          "success",
         );
         setBlogs(blogs.filter((blog) => blog.id !== blogToDelete.id));
       } catch (err) {
-        setErrorNotification(err.response.data.error);
+        showNotification(err.response.data.error, "fail");
       }
     }
   };
 
-  const padding = {
-    padding: 5,
-  };
-
   return (
-    <>
-      <div>
-        <Link style={padding} to="/">
-          Blogs
-        </Link>
-        {user && (
-          <Link style={padding} to="/createBlog">
-            New blog
-          </Link>
-        )}
-        {user ? (
-          <button onClick={handleLogout}>Logout</button>
-        ) : (
-          <Link style={padding} to="/login">
-            Login
-          </Link>
-        )}
-      </div>
+    <Container>
+      <AppBar position="static">
+        <Toolbar>
+          <Button color="inherit" component={Link} to="/">
+            blogs
+          </Button>
+          {user && (
+            <Button color="inherit" component={Link} to="/createBlog">
+              new blog
+            </Button>
+          )}
+          {user ? (
+            <Button color="inherit" onClick={handleLogout}>
+              Logout
+            </Button>
+          ) : (
+            <Button color="inherit" component={Link} to="/login">
+              login
+            </Button>
+          )}
+        </Toolbar>
+      </AppBar>
 
-      <ErrorNotification message={errorMessage} />
-      <SuccessNotification message={successMessage} />
+      <Notification notification={notification} />
 
       <Routes>
         <Route
@@ -210,7 +198,7 @@ const App = () => {
           }
         />
       </Routes>
-    </>
+    </Container>
   );
 };
 

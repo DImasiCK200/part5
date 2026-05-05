@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { TextField, Button } from "@mui/material";
 
 const BlogForm = ({ user, createBlog }) => {
   const [blogTitle, setBlogTitle] = useState("");
@@ -23,41 +24,39 @@ const BlogForm = ({ user, createBlog }) => {
     }
   };
 
+  const style = { paddingTop: 10 };
+
   const blogForm = () => (
     <div>
       <div>
+        <h2>Create new blog</h2>
         <form onSubmit={handleBlog}>
-          <div>
-            <label>
-              Title
-              <input
-                type="text"
-                value={blogTitle}
-                onChange={({ target }) => setBlogTitle(target.value)}
-              />
-            </label>
+          <div style={style}>
+            <TextField
+              label="Title"
+              value={blogTitle}
+              onChange={({ target }) => setBlogTitle(target.value)}
+            />
+          </div>
+          <div style={style}>
+            <TextField
+              label="Author"
+              value={blogAuthor}
+              onChange={({ target }) => setBlogAuthor(target.value)}
+            />
+          </div>
+          <div style={style}>
+            <TextField
+              label="URL"
+              value={blogUrl}
+              onChange={({ target }) => setBlogUrl(target.value)}
+            />
           </div>
           <div>
-            <label>
-              Author
-              <input
-                type="text"
-                value={blogAuthor}
-                onChange={({ target }) => setBlogAuthor(target.value)}
-              />
-            </label>
+            <Button type="submit" variant="contained" style={{ marginTop: 10 }}>
+              Create
+            </Button>
           </div>
-          <div>
-            <label>
-              Url
-              <input
-                type="text"
-                value={blogUrl}
-                onChange={({ target }) => setBlogUrl(target.value)}
-              />
-            </label>
-          </div>
-          <button type="submit">Create</button>
         </form>
       </div>
     </div>
