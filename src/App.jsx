@@ -8,15 +8,16 @@ import {
   useMatch,
 } from "react-router-dom";
 import { Container, AppBar, Toolbar, Button } from "@mui/material";
+import { ErrorBoundary } from "react-error-boundary";
 
 import Blog from "./components/Blog";
 import BlogForm from "./components/BlogForm";
-import Togglable from "./components/Togglable";
 import BlogList from "./components/BlogList";
 import Login from "./components/Login";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
 import Notification from "./components/Notification";
+import Fallback from "./components/Fallback";
 
 let timeout = null;
 
@@ -169,36 +170,38 @@ const App = () => {
       </AppBar>
 
       <Notification notification={notification} />
-
-      <Routes>
-        <Route
-          path="/blogs/:id"
-          element={
-            <Blog
-              blog={blog}
-              user={user}
-              handleLike={likeBlog}
-              handleDelete={deleteBlog}
-            />
-          }
-        />
-        <Route
-          path="/createBlog"
-          element={<BlogForm createBlog={addBlog} user={user} />}
-        />
-        <Route path="/login" element={<Login loginUser={handleLogin} />} />
-        <Route
-          path="/"
-          element={
-            <BlogList
-              blogs={blogs}
-              user={user}
-              handleLike={likeBlog}
-              handleDelete={deleteBlog}
-            />
-          }
-        />
-      </Routes>
+      <ErrorBoundary FallbackComponent={Fallback}>
+        <Routes>
+          <Route
+            path="/blogs/:id"
+            element={
+              <Blog
+                blog={blog}
+                user={user}
+                handleLike={likeBlog}
+                handleDelete={deleteBlog}
+              />
+            }
+          />
+          <Route
+            path="/createBlog"
+            element={<BlogForm createBlog={addBlog} user={user} />}
+          />
+          <Route path="/login" element={<Login loginUser={handleLogin} />} />
+          <Route path="/*" element={<h>404 - Page not found</h>} />
+          <Route
+            path="/"
+            element={
+              <BlogList
+                blogs={blogs}
+                user={user}
+                handleLike={likeBlog}
+                handleDelete={deleteBlog}
+              />
+            }
+          />
+        </Routes>
+      </ErrorBoundary>
     </Container>
   );
 };
