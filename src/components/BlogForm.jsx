@@ -1,26 +1,48 @@
 import { useState } from "react";
 import { TextField, Button } from "@mui/material";
+import { useUser, useUserActions } from "../userStore";
+import { useNotificationActions } from "../notificationStore";
+import { useNavigate } from "react-router-dom";
+import { useBlogsActions } from "../blogStore";
 
-const BlogForm = ({ user, createBlog }) => {
+const BlogForm = () => {
   const [blogTitle, setBlogTitle] = useState("");
   const [blogUrl, setBlogUrl] = useState("");
   const [blogAuthor, setBlogAuthor] = useState("");
 
+  const user = useUser();
+  const { logout } = useUserActions();
+  const { showNotification } = useNotificationActions();
+  const { add } = useBlogsActions();
+  const navigate = useNavigate();
+
   const handleBlog = async (event) => {
-    event.preventDefault();
+    try {
+      event.preventDefault();
 
-    const newBlog = {
-      title: blogTitle,
-      url: blogUrl,
-      author: blogAuthor,
-    };
+      const newBlog = {
+        title: blogTitle,
+        url: blogUrl,
+        author: blogAuthor,
+      };
 
-    const createdBlog = await createBlog(newBlog);
+      const blogCreated = await add(newBlog);
 
-    if (createdBlog) {
       setBlogTitle("");
       setBlogAuthor("");
       setBlogUrl("");
+
+      showNotification(
+        `Added new blog: ${blogCreated.title} by ${blogCreated.author}`,
+        "success",
+      );
+
+      navigate("/");
+    } catch (err) {
+      showNotification(err.response.data.error, "error");
+      if (err.response.status === 401) {
+        logout();
+      }
     }
   };
 

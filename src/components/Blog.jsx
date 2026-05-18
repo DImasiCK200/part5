@@ -6,8 +6,50 @@ import {
   Button,
   Link,
 } from "@mui/material";
+import { useBlogsActions } from "../blogStore";
+import { useNavigate } from "react-router-dom";
+import { useNotificationActions } from "../notificationStore";
+import { useUser } from "../userStore";
 
-const Blog = ({ blog, user, handleLike, handleDelete }) => {
+const Blog = ({ blog }) => {
+  const user = useUser();
+  const { like, remove } = useBlogsActions();
+  const navigate = useNavigate();
+  const { showNotification } = useNotificationActions();
+
+  if (!blog) {
+    return null;
+  }
+
+  const handleLike = async (blogToLike) => {
+    try {
+      await like(blogToLike.id);
+    } catch (err) {
+      console.log(err.response.data.error);
+    }
+  };
+
+  const handleDelete = async (blogToDelete) => {
+    if (
+      window.confirm(
+        `Do you want to delete ${blogToDelete.title} by ${blogToDelete.author} blog?`,
+      )
+    ) {
+      try {
+        await remove(blogToDelete.id);
+
+        navigate("/");
+
+        showNotification(
+          `Successful delete blog: ${blogToDelete.title} `,
+          "success",
+        );
+      } catch (err) {
+        showNotification(err.response.data.error, "error");
+      }
+    }
+  };
+
   return (
     <div style={{ paddingTop: 10 }}>
       <Card style={{ backgroundColor: "#e8e9e8ff" }}>

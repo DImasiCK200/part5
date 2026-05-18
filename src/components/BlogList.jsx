@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
+import { useBlogs } from "../blogStore";
 
-const BlogList = ({ blogs }) => {
+const BlogList = () => {
+  const blogs = useBlogs();
+
   blogs.sort((a, b) => b.likes - a.likes);
 
   return (

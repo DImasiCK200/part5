@@ -1,27 +1,38 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { TextField, Button } from "@mui/material";
+import { useNotificationActions } from "../notificationStore";
+import { useUserActions } from "../userStore";
 
-const Login = ({ loginUser }) => {
+const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
+  const { showNotification } = useNotificationActions();
+  const { login } = useUserActions();
 
   const navigate = useNavigate();
 
   const handleLogin = async (event) => {
     event.preventDefault();
 
-    const response = await loginUser(username, password);
+    try {
+      await login(username, password);
 
-    setUsername("");
-    setPassword("");
+      setUsername("");
+      setPassword("");
 
-    if (response) navigate("/");
+      showNotification("Successful login!", "success");
+
+      navigate("/");
+    } catch (err) {
+      showNotification(err.response.data.error, "error");
+    }
   };
 
   const style = { paddingTop: 10 };
 
-  const loginForm = () => (
+  return (
     <div>
       <h2>Log in to application</h2>
       <form onSubmit={handleLogin}>
@@ -49,8 +60,6 @@ const Login = ({ loginUser }) => {
       </form>
     </div>
   );
-
-  return <>{loginForm()}</>;
 };
 
 export default Login;
