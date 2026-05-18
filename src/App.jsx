@@ -19,9 +19,11 @@ import loginService from "./services/login";
 import Notification from "./components/Notification";
 import Fallback from "./components/Fallback";
 import { useNotification, useNotificationActions } from "./notificationStore";
+import { useBlogs, useBlogsActions } from "./blogStore";
 
 const App = () => {
-  const [blogs, setBlogs] = useState([]);
+  const blogs = useBlogs();
+  const { initialize, add } = useBlogsActions();
   const [user, setUser] = useState(null);
 
   const notification = useNotification();
@@ -30,8 +32,8 @@ const App = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs));
-  }, []);
+    initialize();
+  }, [initialize]);
 
   useEffect(() => {
     const userJSON = window.localStorage.getItem("loggedBlogAppUser");
@@ -69,14 +71,13 @@ const App = () => {
 
   const addBlog = async (blogObject) => {
     try {
-      const blogCreated = await blogService.create(blogObject);
+      const blogCreated = await add(blogObject);
 
       if (blogCreated) {
         showNotification(
           `Added new blog: ${blogCreated.title} by ${blogCreated.author}`,
           "success",
         );
-        setBlogs(blogs.concat(blogCreated));
         navigate("/");
       }
     } catch (err) {
