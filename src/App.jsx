@@ -18,13 +18,14 @@ import blogService from "./services/blogs";
 import loginService from "./services/login";
 import Notification from "./components/Notification";
 import Fallback from "./components/Fallback";
-
-let timeout = null;
+import { useNotification, useNotificationActions } from "./notificationStore";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
-  const [notification, setNotification] = useState(null);
   const [user, setUser] = useState(null);
+
+  const notification = useNotification();
+  const { showNotification } = useNotificationActions();
 
   const navigate = useNavigate();
 
@@ -43,18 +44,6 @@ const App = () => {
 
   const match = useMatch("/blogs/:id");
   const blog = match ? blogs.find((blog) => blog.id === match.params.id) : null;
-
-  const showNotification = (message, status) => {
-    setNotification({ text: message, type: status });
-
-    if (timeout) {
-      clearTimeout(timeout);
-    }
-
-    timeout = setTimeout(() => {
-      setNotification(null);
-    }, 3000);
-  };
 
   const handleLogin = async (username, password) => {
     try {
@@ -188,7 +177,7 @@ const App = () => {
             element={<BlogForm createBlog={addBlog} user={user} />}
           />
           <Route path="/login" element={<Login loginUser={handleLogin} />} />
-          <Route path="/*" element={<h>404 - Page not found</h>} />
+          <Route path="/*" element={<h2>404 - Page not found</h2>} />
           <Route
             path="/"
             element={
